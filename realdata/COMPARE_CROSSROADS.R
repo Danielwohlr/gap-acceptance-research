@@ -1,56 +1,20 @@
-#Tento script funguje spravne pouze pokud se spousti s prazdnym Workspace
-library(readxl)
-library(readr)
-library(plyr)
-library(dplyr)
-library(ggplot2)
-library(devtools)
-library(fitdistrplus)
-library(optimx)
-library(goftest)
-library(ggpubr)
-library(rapport)
-library(gsubfn)
+#Clear the WORKSPACE before running!
+# This scripts compares densities of gaps accepted by k vehicles for k=0,1,2,3,4 for different crossroads
+source("realdata/aux_scripts.R")
 
-# source("D:/Intel/Documents/Simulace VU/rozdel_akcept_gamma.R")
-# source("D:/Intel/Documents/Simulace VU/Boxplot_betamu.R")
-# source("D:/Intel/Documents/Simulace VU/Vykreslit_graf.R")
-# source("D:/Intel/Documents/Simulace VU/Pearson_test_sim.R")
-
-
-
-#Rstudio spravne vykresli vsechny obrazky pouze s prazdnym workspace
-#https://stackoverflow.com/questions/51247102/reached-elapsed-time-limit-errors-in-r
 x <- ls() 
 if (length(x) !=0){ 
   rm(list=ls()) 
 }
 
-#################
-#################
-#Cteni dat
-dataset1 <- read_excel("Munich_INTSEC_01.xlsx", 
-                      col_names = FALSE)
-dataset2 <- read_excel("Munich_INTSEC_02.xlsx", 
-                      col_names = FALSE)
-dataset3 <- read_excel("Munich_INTSEC_03.xlsx", 
-                      col_names = FALSE)
+# Main code
+dataset1 <- process_dataset("data/Munich_INTSEC_01.xlsx")
+dataset2 <- process_dataset("data/Munich_INTSEC_02.xlsx")
+dataset3 <- process_dataset("data/Munich_INTSEC_03.xlsx")
 
-colnames(dataset1) <- c("Gap","k","Hustota", "Rychlost")
-colnames(dataset2) <- c("Gap","k","Hustota", "Rychlost")
-colnames(dataset3) <- c("Gap","k","Hustota", "Rychlost")
-
-Gaps1 <- vector(mode = "list", length = 9)
-Gaps2 <- vector(mode = "list", length = 9)
-Gaps3 <- vector(mode = "list", length = 9)
-
-
-for(j in 1:9){
-  l<- j-1
-  Gaps1[[j]] <- as.numeric(dataset1$Gap[dataset1$k == l])
-  Gaps2[[j]] <- as.numeric(dataset2$Gap[dataset2$k == l])
-  Gaps3[[j]] <- as.numeric(dataset3$Gap[dataset3$k == l])
-}
+Gaps1 <- create_gaps(dataset1)
+Gaps2 <- create_gaps(dataset2)
+Gaps3 <- create_gaps(dataset3)
 
 #################
 #################

@@ -1,10 +1,11 @@
-#data jsou realne gaps akceptovane prave k vozidly
-#pro data vykresli histogram, z prislusneho Pearsonovo testu vezme odhadnute parametry a prolozi teoretickou hustotou
-#dale odhaduji gamma fit, ten take prolozim
 
-#typ je bud 1 - data s nejlepsi shodou, a vypíše se do obrazku NEJLEPSI, anebo 0 - data s nejhorsi shodou, vypise se nejhorsi
+# This function: creates histogram for data, for corresponding Pearson's chi-squared test it estimates the parameters and it plots 
+# the theoretical dist with such params and also gamma with estimated params
+
 Obrazekmocpekny <- function(data,k,typdat){
-  
+  # data is a vector of gaps accepted exactly by k vehicles
+  # k is the number of vehicles that accepted the gap
+  # typdat is either 1 or 0, 1 means the best fit, 0 means the worst fit
   if(typdat == 1){
     bestorworst <- "nejlepší"
   } else{
@@ -23,7 +24,6 @@ Obrazekmocpekny <- function(data,k,typdat){
   lambda <- BestPearson$Parametry["lambda"]
   mu <- BestPearson$Parametry["mu"]
   
-  
   #Odhadovani parametru pro fitovani gamma distribuce
   fit.gamma <- scudaje %>%
     fitdist(distr= 'gamma', method = 'mle')
@@ -40,12 +40,8 @@ Obrazekmocpekny <- function(data,k,typdat){
   
   Gamma_hustota_est <- geom_line(data = gamma_hodnoty, aes(x=sour_1,y=gamma_hustota,colour = "Gamma"), lwd=1.2)
   
-  
-  
-  
   #Predpis teoreticke hustoty
-  #############################################################################
-  
+
   suma_1 <- function(u,k){
     vysledek1 <- 0
     for(j in 0:(alpha-1)){
@@ -67,16 +63,13 @@ Obrazekmocpekny <- function(data,k,typdat){
     vysledek2
   }
   
-  
   Odvozena_hustota <- function(u,k){
     (beta + mu)^(k*alpha +lambda)*u^(k*alpha +lambda -1)*exp(-(beta+mu)*u)*
       suma_1(u,k)/suma_2(k)
   }
-  #####
   
   #Hodnoty teoreticke hustoty
   hustota <- sapply(sour_1,Odvozena_hustota,k=k)
-  
   
   #Histogram z realnych dat
   histogramek <- ggplot() +
@@ -89,10 +82,7 @@ Obrazekmocpekny <- function(data,k,typdat){
           axis.title.x = element_text(  size = 17,face="bold",vjust=-0.35),
           axis.title.y = element_text(  size = 17,face="bold",vjust=0.85),
           plot.title = element_text(size=17))
-  
-  
-  
-  
+
   #Finalni obrazek histogram+gamma+teoreticka
   obrazecek <- histogramek + geom_line( aes(x=sour_1,y=hustota,colour = "Teoretická"),lwd=1.2) +
     Gamma_hustota_est +
@@ -105,7 +95,4 @@ Obrazekmocpekny <- function(data,k,typdat){
           legend.title = element_text(size=17,face="bold"))
   
   obrazecek
-  
-
-  
 }

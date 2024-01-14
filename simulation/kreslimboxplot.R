@@ -1,9 +1,16 @@
+# Helper function to create a data frame
+create_df <- function(prefix) {
+  df <- data.frame(get(paste0(prefix, "k0")),
+                   get(paste0(prefix, "k1")),
+                   get(paste0(prefix, "k3")))
+  names(df) <- c("k0", "k1", "k3")
+  return(df)
+}
 
-mydf1 <- data.frame(Sada1k0,Sada1k1,Sada1k3)
-mydf2 <- data.frame(Sada2k0,Sada2k1,Sada2k3)
-mydf3 <- data.frame(Sada3k0,Sada3k1,Sada3k3)
-
-
+# Main code
+mydf1 <- create_df("Sada1")
+mydf2 <- create_df("Sada2")
+mydf3 <- create_df("Sada3")
 
 mdf <- melt(mydf1)
 

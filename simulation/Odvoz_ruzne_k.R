@@ -6,14 +6,12 @@ alpha <- 2
 beta <- 5
 lambda <- 4
 mu <- 6
-hustota_0 <- sapply(sour_1,Odvozena_hustota,k=0)
-hustota_1 <- sapply(sour_1,Odvozena_hustota,k=1)
-hustota_2 <- sapply(sour_1,Odvozena_hustota,k=2)
-hustota_3 <- sapply(sour_1,Odvozena_hustota,k=3)
-hustota_4 <- sapply(sour_1,Odvozena_hustota,k=4)
-hustota_5 <- sapply(sour_1,Odvozena_hustota,k=5)
-hustota_6 <- sapply(sour_1,Odvozena_hustota,k=6)
+hustota_list <- list()
 
+# Use a loop to calculate the different values of k
+for (k in 0:6) {
+  hustota_list[[paste0("hustota_", k)]] <- sapply(sour_1, Odvozena_hustota, k = k)
+}
 
 dist_hodnoty <- data.frame("x" = sour_1, hustota_0,hustota_1,hustota_2,hustota_3,hustota_4,hustota_5,hustota_6)
 

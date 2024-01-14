@@ -1,7 +1,7 @@
 #Pearsonovo X2 testu hypotezy, zda chunkofdata pochazi z teoreticke distribuce z odhadnutymi parametry
 #Funkce vrati list s parametry odpovidajici nejlepsi volbe alpha (nejlepsi se mysli nejnizsi hodnota pearsonovy stat)
 #dale pak take vraci nejlepsi hodnotu Pearsonovy statistiky a vysledek hypotezy(0-zamitnuto, 1-nezamitnuto) 
-
+library(goft)
 resulthyp <- function(chunkofdata,k){
   
   #scaling data
@@ -44,9 +44,7 @@ resulthyp <- function(chunkofdata,k){
     }
     length(scdata)*log(mezivysledek )
   }
-  
-  
-  
+ 
   #Zaporna log-verohodnostni funkce
   negloglike <- function(Params){
     beta <- Params[1]
@@ -58,15 +56,9 @@ resulthyp <- function(chunkofdata,k){
         (beta+mu)*sum(scdata) +
         ctvrtyclen(alpha, beta)  -
         patyclen(alpha, beta, mu, mu) )
-    
   }
   
-  
-  #####
-  
   #Predpis teoreticke hustoty, CDF. ICDF 
-  #####################################
-  
   suma_1 <- function(u,k){
     vysledek1 <- 0
     for(j in 0:(alpha-1)){
@@ -88,7 +80,6 @@ resulthyp <- function(chunkofdata,k){
     vysledek2
   }
   
-  
   Odvozena_hustota <- function(u,k){
     (beta + mu)^(k*alpha +lambda)*u^(k*alpha +lambda -1)*exp(-(beta+mu)*u)*
       suma_1(u,k)/suma_2(k)
@@ -102,9 +93,6 @@ resulthyp <- function(chunkofdata,k){
   Quantilova <- function(p,k){
     uniroot( function(x) {Kumulativni(x,k)-p},lower=0,upper=20 )$root
   }
-  
-  
-  #####
   
   #Pevna volba rozmezi pro alpha, pro kterou se bude zkouset odhadnout parametry beta, mu (=lambda)
   maxalpha <- 15
@@ -141,8 +129,6 @@ resulthyp <- function(chunkofdata,k){
     beta <- odhad_beta
     lambda <- odhad_mu
     mu <- odhad_mu
-    
-    
     #Pearson X2 test zda jsou data z teoreticke distribuce
     ####################################################
     
@@ -166,10 +152,7 @@ resulthyp <- function(chunkofdata,k){
       edges[omega+1] = Quantilova(omega/numbins,k)
       prob[omega+1] = 1/numbins
     }
-    
-    
-    
-    
+
     #Actually observed X inside bins
     obs <- rep(NA,numbins)
     
@@ -194,8 +177,6 @@ resulthyp <- function(chunkofdata,k){
     
     #length(obs) je pocet binu, 2 jsem odhadoval parametry
     quant_chi <- qchisq(0.95,numbins-2-1)
-    
-    
     
     if(X2_stat[chi] >= quant_chi){
       #pokud se zamitne
@@ -240,5 +221,5 @@ resulthyp <- function(chunkofdata,k){
   OUT_resulthyp
   
 }
-#Zkouska
+#Run like this:
 #resulthyp(chunkofdata,0)

@@ -17,6 +17,9 @@
 
 #Nacteni dat a nejaka inicializace, Vybiram zde cislo krizovatky, k,...
 ###############################################################################
+
+source("realdata/aux_scripts.R")
+
 output <- Nacteni_dat()
 Upload <- output[[3]]
 

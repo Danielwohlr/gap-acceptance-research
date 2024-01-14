@@ -1,5 +1,5 @@
-#obrazek, ze svetlosti nejsou exponencialni
-
+# This scripts generate a figure that clearances are not exponentially distributed
+source("realdata/aux_scripts.R")
 output <- Nacteni_dat()
 
 #Do promene Total_data muzu ulozit data bud z mereni 1,2,3 a nebo vsechny sloucene, tj index 4
@@ -63,6 +63,3 @@ histogr
 porov  <- ggarrange(histogr1,ggarrange(histogr2,histogr3,ncol = 2),nrow = 2)
 
 annotate_figure(porov)
-
-
-

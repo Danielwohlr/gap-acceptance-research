@@ -1,3 +1,8 @@
+# This scripts estimates beta and mu parameters for the scaled case
+# Alpha is known and set at the beginning of the first script
+
+
+
 #Analyza odhadovani parametru beta, mu
 #Alpha je znamy parametr a stejne jako ostatni se nastavuje na zacatku 1. scriptu
 #Lambda je nastaven na stejnou hodnotu jako mu, pak je hlavni silnice skalovana na 1
@@ -8,28 +13,22 @@
 
 #Vezmu nejmensi pocet pozorovani dle k =0,1,2,3
 #Chci udelat stejny pocet odhadu pro vsechna k
-nejmensi_rozmer <- min(length(X_0),
-                       length(X_1),
-                       length(X_2),
-                       length(X_3))
+# Helper function to truncate and split data
+process_observations <- function(data, num_estimates) {
+  trunc_data <- data[1:(num_estimates*100)]
+  split_data <- split(trunc_data, ceiling(seq_along(trunc_data)/100))
+  return(split_data)
+}
+
+# Main code
+data_list <- list(X_0, X_1, X_2, X_3)
+nejmensi_rozmer <- min(sapply(data_list, length))
 
 #jeden odhad pouzije 500 hodnot, proto promena pocet_odhadu bude toto cislo
 pocet_odhadu <- floor(nejmensi_rozmer/100)
 
-
-#useknu data aby mel pro vsechny hodnoty k stejny pocet pozorovani 
-trunc_data_0 <- X_0[1:(pocet_odhadu*100)]
-trunc_data_1 <- X_1[1:(pocet_odhadu*100)]
-trunc_data_2 <- X_2[1:(pocet_odhadu*100)]
-trunc_data_3 <- X_3[1:(pocet_odhadu*100)]
-
-
-#rozdelim si useknuta data do chunks po 500ti
-split_data_0 <- split(trunc_data_0, ceiling(seq_along(trunc_data_0)/100) )
-split_data_1 <- split(trunc_data_1, ceiling(seq_along(trunc_data_1)/100) )
-split_data_2 <- split(trunc_data_2, ceiling(seq_along(trunc_data_2)/100) )
-split_data_3 <- split(trunc_data_3, ceiling(seq_along(trunc_data_3)/100) )
-
+# Process each dataset
+split_data_list <- lapply(data_list, process_observations(), num_estimates = pocet_odhadu)
 
 #Alokuji misto na ukladani odhadu
 odhad_beta <- rep(NULL,pocet_odhadu)
@@ -38,21 +37,11 @@ CVM_test <- rep(NULL,pocet_odhadu)
 shape_est <- rep(NULL,pocet_odhadu)
 rate_est <- rep(NULL,pocet_odhadu)
 
-
 #Zde volim pro ktere k chci odhadovat parametry
-k<-3
+k <- 3
 
 #Podle zvoleneho k vyse rozhodne ktere data pouziju v hlavnim for loop
-if(k ==0){
-  Moje_data <- split_data_0
-} else if(k ==1){
-  Moje_data <- split_data_1  
-} else if(k==2){
-  Moje_data <- split_data_2
-} else if(k==3){
-  Moje_data <- split_data_3
-}
-
+Moje_data <- split_data_list[[k+1]]
 ###################################################
 ###################################################
 #Odhady parametru, vizualizace
