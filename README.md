@@ -13,8 +13,8 @@ of clearances. This hypothesis was evaluated by using Pearson’s $\Chi$-squared
 The full report is available here: [Full report](report.pdf).
 
 <div style="display: flex; justify-content: space-between;">
-    <img src="images/height_plot.png" alt="Correlation matrix" title="One family analysis" width="400"/>
-    <img src="images/combined_intro.png" alt="Plotted PCA" title="Correlation of children's height with parent's" width="400"/>
+    <img src="images/Krbalek_GA.jpg" alt="T intersection" title="Author: Milan Krbalek" width="400"/>
+    <img src="images/model.jpg" alt="Model" title="Model of Intersection" width="400"/>
 </div>
 
 
