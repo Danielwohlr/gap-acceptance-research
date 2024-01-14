@@ -1,0 +1,7 @@
+paa <- 2
+mkp <- 2
+pnl <- 2
+fko <- 2
+
+
+(calc = (41+3*fko+4*paa+3*mkp+2*pnl)/51)

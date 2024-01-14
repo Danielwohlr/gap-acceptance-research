@@ -1,0 +1,133 @@
+# load libraries and data
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(devtools)
+library(fitdistrplus)
+
+
+#############################################
+#############################################
+
+#############################################
+#############################################
+
+
+
+
+##########################
+
+#num of gaps generated in main lane
+n <- 100000
+#exponential parameter for main lane
+lambda <- 1
+#exponential parameter for ?side? lane
+mu <- 3
+#generated gaps main lane
+X_real <- rexp(n,lambda)
+#TBS: num_car[i] = kolik aut akceptovalo mezeru X_real[i]
+num_car <- rep(NULL,n)
+
+
+for(i in 1:n) {
+  Y <- -0
+  j <- -1
+  #while probehne aspon jednou s pravedp=1
+  while (Y < X_real[i]) {
+    #Y_pomoc jsou generovane mezery z vedlejsi silnice
+    Y_pomoc <- rexp(1,mu)
+    Y <- Y + Y_pomoc
+    j <- j + 1
+  }
+  
+  num_car[i] <- j  
+  
+  
+}
+
+
+
+
+#indexy veliciny X prislusne odpovidajicimu poctu akceptovanych aut
+idx <- list(acc0 = which(num_car == 0), acc1 = which(num_car == 1),
+            acc2 = which(num_car == 2), acc3 = which(num_car == 3),
+            acc4 = which(num_car == 4))
+
+#ukladam si jednotlive X s prislusnymi indexy, podle toho kolik bylo accepted 
+X_data_0 <- data.frame(zeroacc = X_real[idx$acc0])
+X_data_1 <- data.frame(oneacc = X_real[idx$acc1])
+X_data_2 <- data.frame(twoacc = X_real[idx$acc2])
+X_data_3 <- data.frame(threeacc = X_real[idx$acc3])
+
+
+#Strcim vse do jednoho data frame
+X_data <- bind_rows(X_data_0,X_data_1,X_data_2,X_data_3)
+
+
+###################################################
+#################Vizualice#########################
+###################################################
+
+#Generuji si teoreticke gamma rozdeleni
+# Rozdeleni akceptujici prave k vozidel je Gamma(k+1,lambda+mu)
+#sour_1 je x-ova souradnice, zbyle sour_k jsou grafy gamma distribuci
+sour_1 = seq(from=0,to=6, length.out=100)
+
+sour_2 = dgamma(sour_1,1,rate=lambda + mu)
+sour_3 = dgamma(sour_1,2,rate=lambda + mu)
+sour_4 = dgamma(sour_1,3,rate=lambda + mu)
+sour_5 = dgamma(sour_1,4,rate=lambda + mu)
+gamma_hodnoty <- data.frame(sour_1,sour_2,sour_3,sour_4,sour_5)
+
+#Hnusneji to asi uz napsat nejde
+
+#########Obrazek 1
+histogramek <- ggplot(X_data) +
+  geom_histogram( aes(x=zeroacc, y = ..density..),alpha=0.6,fill = "grey", 
+                 color = "black", bins = 100, boundary = 0 ) +
+  labs(title = 'Rozdělení akceptující právě 0 vozidel',
+       subtitle = 'Exponenciální rozdělení v obou proudech',
+       y = 'Hustota', x='Délka mezery')
+
+histogramek + geom_line(data = gamma_hodnoty, aes(x=sour_1,y=sour_2),color = "blue",lwd=1.2,alpha=0.3)
+
+############Obrazek 2 
+histogramek <- ggplot(X_data) +
+  geom_histogram( aes(x=oneacc, y = ..density..),alpha=0.6,fill = "grey", 
+                  color = "black", bins = 100, boundary = 0 ) +
+  labs(title = 'Rozdělení akceptující právě 1 vozidlo',
+       subtitle = 'Exponenciální rozdělení v obou proudech',
+       y = 'Hustota', x='Délka mezery')
+
+histogramek + geom_line(data = gamma_hodnoty, aes(x=sour_1,y=sour_3),color = "red",lwd=1.2,alpha=0.3)
+
+############Obrazek 3 
+histogramek <- ggplot(X_data) +
+  geom_histogram( aes(x=twoacc, y = ..density..),alpha=0.6,fill = "grey", 
+                  color = "black", bins = 100, boundary = 0 ) +
+  labs(title = 'Rozdělení akceptující právě 2 vozidla',
+       subtitle = 'Exponenciální rozdělení v obou proudech',
+       y = 'Hustota', x='Délka mezery')
+
+histogramek + geom_line(data = gamma_hodnoty, aes(x=sour_1,y=sour_4),color = "darkgreen",lwd=1.2,alpha=0.3)
+
+############Obrazek 4
+histogramek <- ggplot(X_data) +
+  geom_histogram( aes(x=threeacc, y = ..density..),alpha=0.6,fill = "grey", 
+                  color = "black", bins = 100, boundary = 0 ) +
+  labs(title = 'Rozdělení akceptující právě 3 vozidla',
+       subtitle = 'Exponenciální rozdělení v obou proudech',
+       y = 'Hustota', x='Délka mezery')
+
+histogramek + geom_line(data = gamma_hodnoty, aes(x=sour_1,y=sour_5),color = "#69b3a2",lwd=1.2,alpha=0.8)
+
+
+
+#Odhad parametru gamma rozdeleni, shape = k+1, rate = lambda+mu
+#prepis zeroacc bud na oneacc,twoacc nebo threeacc, pdole toho jake uvazujeme "k"
+fit.gamma <- X_data_0$zeroacc %>%
+  fitdist(distr= 'gamma', method = 'mle')
+
+fit.gamma$estimate["shape"]
+fit.gamma$estimate["rate"]
+
